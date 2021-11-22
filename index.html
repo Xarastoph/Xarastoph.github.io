@@ -18,78 +18,217 @@
         button {
             width: 48px;
         }
+
+        form {
+            padding: 4px;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        #form {
+            margin: auto;
+            border: 1px solid; 
+            width: 200px;
+            height: 32px;
+            text-align: right;
+            padding: 2px;
+            border-radius: 4px;
+        }
     </style>
 </head>
-  <body>
+<body>
     <h1>Calculator</h1>
+    <div id="form"></div>
+    <div style="height: 4px;"></div>
     <table>
         <tr>
             <td>
-                <button type="button" class="btn btn-dark">+</button>
+                <button type="button" id="+" class="btn btn-dark">+</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">-</button>
+                <button type="button" id="-" class="btn btn-dark">-</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">×</button>
+                <button type="button" id="x" class="btn btn-dark">×</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">÷</button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button type="button" class="btn btn-dark">7</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">8</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">9</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">%</button>
+                <button type="button" id="/" class="btn btn-dark">÷</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button type="button" class="btn btn-dark">4</button>
+                <button type="button" id="7" class="btn btn-dark">7</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">5</button>
+                <button type="button" id="8" class="btn btn-dark">8</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">6</button>
+                <button type="button" id="9" class="btn btn-dark">9</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">x<sup>y</sup></button>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <button type="button" class="btn btn-dark">1</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">2</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">3</button>
-            </td>
-            <td>
-                <button type="button" class="btn btn-dark">√</button>
+                <button type="button" id="%" class="btn btn-dark">%</button>
             </td>
         </tr>
         <tr>
             <td>
-                <button type="button" class="btn btn-dark">0</button>
+                <button type="button" id="4" class="btn btn-dark">4</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">C</button>
+                <button type="button" id="5" class="btn btn-dark">5</button>
             </td>
             <td>
-                <button type="button" class="btn btn-dark">=</button>
+                <button type="button" id="6" class="btn btn-dark">6</button>
+            </td>
+            <td>
+                <button type="button" id="^" class="btn btn-dark">x<sup>y</sup></button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" id="1" class="btn btn-dark">1</button>
+            </td>
+            <td>
+                <button type="button" id="2" class="btn btn-dark">2</button>
+            </td>
+            <td>
+                <button type="button" id="3" class="btn btn-dark">3</button>
+            </td>
+            <td>
+                <button type="button" id="V" class="btn btn-dark">√</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button type="button" id="0" class="btn btn-dark">0</button>
+            </td>
+            <td>
+                <button type="button" id="." class="btn btn-dark">.</button>
+            </td>
+            <td>
+                <button type="button" id="C" class="btn btn-dark">C</button>
+            </td>
+            <td>
+                <button type="button" id="=" class="btn btn-dark">=</button>
             </td>
         </tr>
     </table>
-  </body>
+    <script>
+        const textfield = document.getElementById("form");
+
+        var currentVal = null;
+        var actionVal = null;
+        var action = null;
+        var reset = true;
+        var hardreset = true;
+
+        function add(a, b) { return a + b; }
+        function subtract(a, b) { return a - b; }
+        function multiply(a, b) { return a * b; }
+        function divide(a, b) { return a / b; }
+        function mod(a, b) { return a % b; }
+        function pow(a, b) { return a ** b; }
+
+        function getNumber() {
+            if (textfield.innerHTML == '') return null;
+            if (textfield.innerHTML == '-') return 0.0;
+            return Number(textfield.innerHTML + (textfield.innerHTML.endsWith(".") ? '0' : ''));
+        }
+
+        function cacheVal() {
+            const newVal = getNumber();
+            if (newVal == null) return;
+            actionVal = null;
+
+            if (currentVal != null && action != null) {
+                currentVal = action(currentVal, newVal);
+            } else currentVal = newVal;
+        }
+
+        function evaluate() {
+            if (actionVal == null) actionVal = getNumber();
+            if (actionVal != null && currentVal != null) {
+                currentVal = action(currentVal, actionVal);
+                textfield.innerHTML = currentVal.toString();
+                hardreset = true;
+            }
+        }
+
+        function performAction(act) {
+            if (hardreset) {
+                hardreset = false;
+                action = null;
+            }
+
+            cacheVal();
+
+            action = act;
+            reset = true;
+        }
+
+        [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].forEach((val) => {
+            const char = val.toString();
+            document.getElementById(char).onclick = () => {
+                if (reset) textfield.innerHTML = char;
+                else textfield.innerHTML += char;
+                reset = false;
+            };
+        });
+
+        document.getElementById(".").onclick = () => {
+            if (reset) {
+                textfield.innerHTML = '0.';
+                reset = false;
+            }
+            else if (textfield.innerHTML == "-") {
+                textfield += '0.';
+            }
+            else if (!textfield.innerHTML.includes(".")) {
+                textfield.innerHTML += textfield.innerHTML.length == 0 ? '0.' : '.';
+            }
+        };
+
+        document.getElementById("C").onclick = () => {
+            textfield.innerHTML = '';
+            reset = true;
+            currentVal = null;
+            action = null;
+        };
+
+        document.getElementById("=").onclick = evaluate;
+
+        const actionMap = new Map([
+            ["+", add],
+            ["x", multiply],
+            ["/", divide],
+            ["%", mod],
+            ["^", pow]
+        ])
+
+        actionMap.forEach((act, id) => {
+            document.getElementById(id).onclick = () => performAction(act);
+        });
+
+        document.getElementById("-").onclick = () => {
+            if (reset) {
+                textfield.innerHTML = "-";
+                reset = false;
+            } else performAction(subtract);
+        }
+
+        document.getElementById("V").onclick = () => {
+            const newVal = getNumber();
+            if (newVal == null) return;
+
+            actionVal = 0.5;
+            currentVal = newVal;
+            action = pow;
+            evaluate();
+        }
+
+    </script>
+</body>
 </html>
